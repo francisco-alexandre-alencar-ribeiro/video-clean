@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".SplashActivity"
+            android:name=".activities.SplashActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,9 +20,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
-            android:screenOrientation="portrait"
-            android:noHistory="true">
+            android:name=".activities.MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -30,9 +29,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".VideoActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="landscape"/>
+            android:name=".activities.VideoActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

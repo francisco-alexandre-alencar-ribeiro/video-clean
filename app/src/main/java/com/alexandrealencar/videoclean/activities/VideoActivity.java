@@ -1,10 +1,11 @@
-package com.alexandrealencar.videoclean;
+package com.alexandrealencar.videoclean.activities;
 
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.MediaController;
 import android.widget.VideoView;
+import com.alexandrealencar.videoclean.R;
 
 public class VideoActivity extends AppCompatActivity {
     VideoView videoView = null;

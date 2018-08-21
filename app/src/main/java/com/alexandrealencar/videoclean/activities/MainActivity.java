@@ -1,4 +1,4 @@
-package com.alexandrealencar.videoclean;
+package com.alexandrealencar.videoclean.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.alexandrealencar.videoclean.adapters.LinkAdapter;
+import com.alexandrealencar.videoclean.R;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
