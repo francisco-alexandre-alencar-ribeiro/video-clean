@@ -1,8 +1,10 @@
 package com.alexandrealencar.videoclean.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Patterns;
@@ -10,8 +12,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alexandrealencar.videoclean.adapters.LinkAdapter;
 import com.alexandrealencar.videoclean.R;
@@ -31,7 +35,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     private RecyclerView recyclerView;
     private LinkAdapter linkAdapter;
-    private TextView messageErro;
 
     @Override
 
@@ -41,7 +44,18 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         linkAdapter = new LinkAdapter(this);
         recyclerView.setAdapter(linkAdapter);
-        messageErro = findViewById(R.id.messageErro);
+
+        /*final Context context = this;
+        Button button = findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent( context , Main2Activity.class);
+                startActivity(i);
+            }
+        });
+*/
+
     }
 
     @Override
@@ -56,7 +70,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         if (Intent.ACTION_SEND.equals(i.getAction())) {
             Bundle extras = i.getExtras();
             if (extras != null && extras.containsKey(Intent.EXTRA_TEXT)) {
-                searchView.onActionViewExpanded();
+                searchView.setFocusable(true);
+                searchView.setIconified(false);
+                searchView.requestFocusFromTouch();
                 searchView.setQuery(extras.getString("android.intent.extra.TEXT"), true);
             }
         }
@@ -72,16 +88,29 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         return false;
     }
 
+    @SuppressLint("WrongConstant")
     @Override
     public boolean onQueryTextChange(String url) {
-        boolean isUrl = ( Patterns.WEB_URL.matcher(url).find() && matcher("https?" , url ).find() );
-        if (!isUrl) {
-            showMessage("Url inválida para essa consulta!");
-        }else if (isUrl) {
-            showMessage("Url válida para essa consulta!");
-        } else if ( url.isEmpty() ){
-            showMessage("");
+        boolean isUrl = ( Patterns.WEB_URL.matcher(url).find() && matcher("https?://" , url ).find() );
+
+
+        if( !url.isEmpty() ){
+
+            final Toast toast = message("Url válida para essa consulta!");
+
+            if (!isUrl) {
+                toast.setText("Url inválida para essa consulta!");
+            }
+
+            toast.show();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    toast.cancel();
+                }
+            }, 1500);
         }
+
         return false;
     }
 
@@ -99,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        showMessage("Nenhum site encontrado!");
+                        message("Nenhum site encontrado!").show();
                     }
                 });
         queue.add(stringRequest);
@@ -109,21 +138,17 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         if (!links.isEmpty()) {
             showRecycler(links);
         } else {
-            showMessage("Não há mídia disponível!");
+            message("Não há mídia disponível!").show();
         }
     }
 
-    private void showMessage(String message) {
-        recyclerView.setVisibility(View.INVISIBLE);
-        messageErro.setVisibility(View.VISIBLE);
-        messageErro.setText(message);
+    private Toast message(String message ) {
+        return Toast.makeText(this , message ,Toast.LENGTH_SHORT);
     }
 
     private void showRecycler(List<String> links) {
         linkAdapter.setmDataset(links);
         recyclerView.setAdapter(linkAdapter);
-        recyclerView.setVisibility(View.VISIBLE);
-        messageErro.setVisibility(View.INVISIBLE);
     }
 
     private Matcher matcher(String regex, String response) {
