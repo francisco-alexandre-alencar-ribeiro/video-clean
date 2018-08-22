@@ -3,7 +3,7 @@ package com.alexandrealencar.videoclean.entities;
 public final class QueryHistory {
 
 
-    private long id;
+    private Long id;
     private String description;
     private String link;
     private String dateUpdate;
@@ -17,7 +17,7 @@ public final class QueryHistory {
         this.dateUpdate = dateUpdate;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

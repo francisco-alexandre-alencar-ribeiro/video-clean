@@ -170,11 +170,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void refreshRecyclerView(List<String> links) {
-        if (!links.isEmpty()) {
-            showRecycler(links);
-        } else {
-            message("Não há mídia disponível!").show();
-        }
+        showRecycler(links);
+        message("Não há mídia disponível!").show();
     }
 
     private Toast message(String message ) {
