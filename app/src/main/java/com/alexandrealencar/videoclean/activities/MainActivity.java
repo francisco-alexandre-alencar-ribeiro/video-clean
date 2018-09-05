@@ -191,39 +191,39 @@ public class MainActivity extends AppCompatActivity
 
     private List<String> getListOfLinks(String url, String response) {
         List<String> links = new ArrayList<>();
-        Matcher comparator = matcher("<video.*?</video>", response);
+        Matcher comparator = matcher("('.*?\.mp4.*?')|(\".*?\.mp4.*?\")", response);
 
         while (comparator.find()) {
-            String value = comparator.group(0);
-            if (value.contains("source")) {
-                Matcher secondary = matcher("\\<source(.*?)\\>", value);
-                while (secondary.find()) {
-                    links.add(secondary.group(0));
-                }
-            } else {
-                links.add(value);
-            }
+                String value = comparator.group(0);
+                /*if (value.contains("source")) {
+                    Matcher secondary = matcher("\\<source(.*?)\\>", value);
+                    while (secondary.find()) {
+                        links.add(secondary.group(0));
+                    }
+                } else {*/
+                links.add( (!value.contains("http") ? url : "") + value );
+                //}
         }
 
-        comparator = matcher("src='.*?'", links.toString().replaceAll("\"", "\'"));
+        /*comparator = matcher("src='.*?'", links.toString().replaceAll("\"", "\'"));
         links.clear();
 
         while (comparator.find()) {
-            links.add((!comparator.group(0).contains("http") ? url : "") + comparator.group(0).replace("src=", "").replaceAll("\'", ""));
+        links.add((!comparator.group(0).contains("http") ? url : "") + comparator.group(0).replace("src=", "").replaceAll("\'", ""));
         }
 
         if (links.isEmpty()) {
-            comparator = matcher("http.*?\"", response.replaceAll("\'", "\""));
-            while (comparator.find()) {
-                String value = comparator.group(0).replaceAll("\"", "");
-                if (value.contains(".mp4")) {
-                    links.add((!value.contains("http") ? url : "") + value);
-                }
+        comparator = matcher("http.*?\"", response.replaceAll("\'", "\""));
+        while (comparator.find()) {
+            String value = comparator.group(0).replaceAll("\"", "");
+            if (value.contains(".mp4")) {
+                links.add((!value.contains("http") ? url : "") + value);
             }
         }
-        for (int i = 0; i < links.size(); i++) {
-            links.set(i, (links.get(i).contains("://")) ? links.get(i) : links.get(i).replaceAll("/", ""));
         }
+        for (int i = 0; i < links.size(); i++) {
+        links.set(i, (links.get(i).contains("://")) ? links.get(i) : links.get(i).replaceAll("/", ""));
+        }*/
 
         return links;
     }
