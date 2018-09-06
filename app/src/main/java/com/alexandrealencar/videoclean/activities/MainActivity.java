@@ -130,18 +130,18 @@ public class MainActivity extends AppCompatActivity
 
 
         if( !url.isEmpty() ){
-
-            final Toast toast = message("Url válida para essa consulta!");
-
-            if (!isUrl) {
-                toast.setText("Url inválida para essa consulta!");
+            Toast toast = null;
+            if (isUrl) {
+                toast = message("Url válida para essa consulta!");
+            }else{
+                toast = message("Url inválida para essa consulta!");
             }
-
             toast.show();
+            final Toast finalToast = toast;
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    toast.cancel();
+                    finalToast.cancel();
                 }
             }, 1500);
         }
