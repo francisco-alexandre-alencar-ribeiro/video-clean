@@ -20,7 +20,7 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.alexandrealencar.videoclean.R;
-import com.alexandrealencar.videoclean.adapters.LinkAdapter;
+import com.alexandrealencar.videoclean.adapters.LinkVideoAdapter;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -34,10 +34,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener ,SearchView.OnQueryTextListener, LinkAdapter.OnListInteraction {
+        implements NavigationView.OnNavigationItemSelectedListener ,SearchView.OnQueryTextListener, LinkVideoAdapter.OnListInteraction {
 
     private RecyclerView recyclerView;
-    private LinkAdapter linkAdapter;
+    private LinkVideoAdapter linkAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         recyclerView = findViewById(R.id.recyclerView);
-        linkAdapter = new LinkAdapter(this);
+        linkAdapter = new LinkVideoAdapter(this);
         recyclerView.setAdapter(linkAdapter);
     }
 
@@ -133,18 +133,18 @@ public class MainActivity extends AppCompatActivity
 
 
         if( !url.isEmpty() ){
-
-            final Toast toast = message("Url válida para essa consulta!");
-
-            if (!isUrl) {
-                toast.setText("Url inválida para essa consulta!");
+            Toast toast = null;
+            if (isUrl) {
+                toast = message("Url válida para essa consulta!");
+            }else{
+                toast = message("Url inválida para essa consulta!");
             }
-
             toast.show();
+            final Toast finalToast = toast;
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    toast.cancel();
+                    finalToast.cancel();
                 }
             }, 1500);
         }

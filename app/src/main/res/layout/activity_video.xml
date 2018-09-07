@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <ProgressBar
+    <!--ProgressBar
         android:id="@+id/my_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,5 +23,5 @@
         app:layout_constraintBottom_toBottomOf="@+id/videoView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/videoView" />
+        app:layout_constraintTop_toTopOf="@+id/videoView" /-->
 </android.support.constraint.ConstraintLayout>

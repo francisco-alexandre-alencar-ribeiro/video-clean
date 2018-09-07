@@ -25,7 +25,7 @@ public class VideoActivity extends AppCompatActivity {
         mediaController.setAnchorView( videoView );
         videoView.start();
 
-        final ProgressBar spinnerView = findViewById(R.id.my_spinner);
+        /*final ProgressBar spinnerView = findViewById(R.id.my_spinner);
         final MediaPlayer.OnInfoListener onInfoToPlayStateListener = new MediaPlayer.OnInfoListener() {
 
             @Override
@@ -42,7 +42,7 @@ public class VideoActivity extends AppCompatActivity {
                 return false;
             }
         };
-        videoView.setOnInfoListener(onInfoToPlayStateListener);
+        videoView.setOnInfoListener(onInfoToPlayStateListener);*/
 
     }
 }

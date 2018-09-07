@@ -10,7 +10,7 @@ import com.alexandrealencar.videoclean.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.ViewHolder> {
+public class LinkPageAdapter extends RecyclerView.Adapter<LinkPageAdapter.ViewHolder> {
     private List<String> mDataset;
     private OnListInteraction onListInteraction;
 
@@ -22,7 +22,7 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.ViewHolder> {
         }
     }
 
-    public LinkAdapter(OnListInteraction onListInteraction) {
+    public LinkPageAdapter(OnListInteraction onListInteraction) {
         this.onListInteraction = onListInteraction;
         mDataset = new ArrayList<>();
     }
@@ -34,7 +34,7 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.ViewHolder> {
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_link, parent, false));
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_link_video, parent, false));
     }
 
     @Override

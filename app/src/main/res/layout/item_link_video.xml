@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <TextView
         android:id="@android:id/text1"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="20dp"
-        android:background="@drawable/shape"
-        android:text="@android:string/unknownName"
+        android:textColor="#000"
+        android:text="cfkjckjrfcnkrrrcfcr"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        android:drawableRight="@drawable/ic_play_circle_filled"
+        tools:ignore="RtlHardcoded" />
+
 </android.support.constraint.ConstraintLayout>
