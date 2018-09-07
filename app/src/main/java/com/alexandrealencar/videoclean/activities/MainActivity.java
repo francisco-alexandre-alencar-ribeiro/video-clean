@@ -101,7 +101,10 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_query_history) {
+
+        if (id == R.id.nav_home) {
+            startActivity( new Intent(this , HomeActivity.class ) );
+        } else if (id == R.id.nav_query_history) {
 
         } else if (id == R.id.nav_downloads) {
 
@@ -157,7 +160,7 @@ public class MainActivity extends AppCompatActivity
                     @SuppressLint("SetTextI18n")
                     @Override
                     public void onResponse(String response) {
-                        refreshRecyclerView(getListOfLinks(absolute, response));
+                        refreshRecyclerView(getListOfLinksHtml(absolute, response));
                     }
                 },
                 new Response.ErrorListener() {
@@ -189,7 +192,7 @@ public class MainActivity extends AppCompatActivity
         return pattern.matcher(response);
     }
 
-    private List<String> getListOfLinks(String url, String response) {
+    private List<String> getListOfLinksHtml(String url, String response) {
         List<String> links = new ArrayList<>();
         Matcher comparator = matcher("<video.*?</video>", response);
 
@@ -197,10 +200,10 @@ public class MainActivity extends AppCompatActivity
             String value = comparator.group(0);
             if (value.contains("source")) {
                 Matcher secondary = matcher("\\<source(.*?)\\>", value);
-                while (secondary.find()) {
+                while (secondary.find() && secondary.group(0).contains(".mp4") ) {
                     links.add(secondary.group(0));
                 }
-            } else {
+            } else if( value.contains(".mp4") ){
                 links.add(value);
             }
         }
@@ -209,20 +212,22 @@ public class MainActivity extends AppCompatActivity
         links.clear();
 
         while (comparator.find()) {
-            links.add((!comparator.group(0).contains("http") ? url : "") + comparator.group(0).replace("src=", "").replaceAll("\'", ""));
+            if( !links.contains( comparator.group(0) ) )
+                links.add((!comparator.group(0).contains("http") ? url : "") + comparator.group(0).replace("src=", "").replaceAll("\'", ""));
         }
 
         if (links.isEmpty()) {
             comparator = matcher("http.*?\"", response.replaceAll("\'", "\""));
             while (comparator.find()) {
                 String value = comparator.group(0).replaceAll("\"", "");
-                if (value.contains(".mp4")) {
-                    links.add((!value.contains("http") ? url : "") + value);
+                String link = (!value.contains("http") ? url : "") + value;
+                if ( value.contains(".mp4") && !links.contains( link ) ) {
+                    links.add( link );
                 }
             }
         }
         for (int i = 0; i < links.size(); i++) {
-            links.set(i, (links.get(i).contains("://")) ? links.get(i) : links.get(i).replaceAll("/", ""));
+            links.set(i, (links.get(i).contains("://")) ? links.get(i) : links.get(i).replaceAll("\\/", ""));
         }
 
         return links;
