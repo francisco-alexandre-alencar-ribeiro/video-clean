@@ -34,7 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener ,SearchView.OnQueryTextListener, LinkVideoAdapter.OnListInteraction {
+        implements NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener, LinkVideoAdapter.OnListInteraction {
 
     private RecyclerView recyclerView;
     private LinkVideoAdapter linkAdapter;
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView = findViewById(R.id.recyclerViewLinkVideo);
         linkAdapter = new LinkVideoAdapter(this);
         recyclerView.setAdapter(linkAdapter);
     }
@@ -102,14 +102,14 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
 
-        if (id == R.id.nav_home) {
-            startActivity( new Intent(this , HomeActivity.class ) );
+        if (id == R.id.nav_extractor_link) {
+            startActivity(new Intent(this, ExtractorLinkActivity.class));
         } else if (id == R.id.nav_query_history) {
 
         } else if (id == R.id.nav_downloads) {
 
-        } else if (id == R.id.nav_share) {
-
+        } else if (id == R.id.nav_favorites) {
+            startActivity(new Intent(this, FavoriteLinkActivity.class));
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onQueryTextSubmit(String url) {
-        boolean isUrl = ( Patterns.WEB_URL.matcher(url).find() && matcher("https?" , url ).find() );
+        boolean isUrl = (Patterns.WEB_URL.matcher(url).find() && matcher("https?", url).find());
         if (isUrl) {
             getContentSite(url);
         }
@@ -129,14 +129,14 @@ public class MainActivity extends AppCompatActivity
     @SuppressLint("WrongConstant")
     @Override
     public boolean onQueryTextChange(String url) {
-        boolean isUrl = ( Patterns.WEB_URL.matcher(url).find() && matcher("https?://" , url ).find() );
+        boolean isUrl = (Patterns.WEB_URL.matcher(url).find() && matcher("https?://", url).find());
 
 
-        if( !url.isEmpty() ){
+        if (!url.isEmpty()) {
             Toast toast = null;
             if (isUrl) {
                 toast = message("Url válida para essa consulta!");
-            }else{
+            } else {
                 toast = message("Url inválida para essa consulta!");
             }
             toast.show();
@@ -173,17 +173,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void refreshRecyclerView(List<String> links) {
-        showRecycler(links);
-        message("Não há mídia disponível!").show();
-    }
-
-    private Toast message(String message ) {
-        return Toast.makeText(this , message ,Toast.LENGTH_SHORT);
-    }
-
-    private void showRecycler(List<String> links) {
         linkAdapter.setmDataset(links);
         recyclerView.setAdapter(linkAdapter);
+        if (links.isEmpty()) {
+            message("Não há mídia disponível!").show();
+        }
+    }
+
+    private Toast message(String message) {
+        return Toast.makeText(this, message, Toast.LENGTH_SHORT);
     }
 
     private Matcher matcher(String regex, String response) {
@@ -200,10 +198,10 @@ public class MainActivity extends AppCompatActivity
             String value = comparator.group(0);
             if (value.contains("source")) {
                 Matcher secondary = matcher("\\<source(.*?)\\>", value);
-                while (secondary.find() && secondary.group(0).contains(".mp4") ) {
+                while (secondary.find() && secondary.group(0).contains(".mp4")) {
                     links.add(secondary.group(0));
                 }
-            } else if( value.contains(".mp4") ){
+            } else if (value.contains(".mp4")) {
                 links.add(value);
             }
         }
@@ -212,7 +210,7 @@ public class MainActivity extends AppCompatActivity
         links.clear();
 
         while (comparator.find()) {
-            if( !links.contains( comparator.group(0) ) )
+            if (!links.contains(comparator.group(0)))
                 links.add((!comparator.group(0).contains("http") ? url : "") + comparator.group(0).replace("src=", "").replaceAll("\'", ""));
         }
 
@@ -221,8 +219,8 @@ public class MainActivity extends AppCompatActivity
             while (comparator.find()) {
                 String value = comparator.group(0).replaceAll("\"", "");
                 String link = (!value.contains("http") ? url : "") + value;
-                if ( value.contains(".mp4") && !links.contains( link ) ) {
-                    links.add( link );
+                if (value.contains(".mp4") && !links.contains(link)) {
+                    links.add(link);
                 }
             }
         }
