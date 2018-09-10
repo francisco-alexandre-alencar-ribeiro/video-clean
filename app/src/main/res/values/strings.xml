@@ -10,5 +10,6 @@
     <string name="history">Histórico</string>
     <string name="downloads">Downloads</string>
     <string name="share">Compartilhar</string>
-    <string name="home">Home</string>
+    <string name="liskExtractor">Extrator de links</string>
+    <string name="liskFavorites">Favoritos</string>
 </resources>

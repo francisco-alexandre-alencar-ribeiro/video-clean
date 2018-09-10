@@ -4,9 +4,9 @@
     tools:showIn="navigation_view">
 
     <item
-        android:id="@+id/nav_home"
-        android:icon="@drawable/ic_menu_home"
-        android:title="@string/home" />
+        android:id="@+id/nav_extractor_link"
+        android:icon="@drawable/ic_menu_upload"
+        android:title="@string/liskExtractor" />
     <item
         android:id="@+id/nav_query_history"
         android:icon="@drawable/ic_menu_history"
@@ -16,8 +16,7 @@
         android:icon="@drawable/ic_download"
         android:title="@string/downloads" />
     <item
-        android:id="@+id/nav_share"
-        android:icon="@drawable/ic_menu_share"
-        android:title="@string/share" />
-
+        android:id="@+id/nav_favorites"
+        android:icon="@drawable/ic_menu_folder"
+        android:title="@string/liskFavorites" />
 </menu>
