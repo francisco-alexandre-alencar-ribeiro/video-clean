@@ -37,7 +37,14 @@
             android:name=".activities.VideoActivity"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activities.HomeActivity"></activity>
+        <activity
+            android:name=".activities.ExtractorLinkActivity"
+            android:label="@string/liskExtractor"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.FavoriteLinkActivity"
+            android:label="@string/liskFavorites"
+            android:screenOrientation="portrait" ></activity>
     </application>
 
 </manifest>

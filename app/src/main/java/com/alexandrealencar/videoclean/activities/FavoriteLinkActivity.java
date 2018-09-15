@@ -41,9 +41,8 @@ public class FavoriteLinkActivity extends AppCompatActivity  implements LinkPage
 
     @Override
     public void onClickIem(String[] url) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(Intent.EXTRA_TEXT, url[0]);
-        intent.setAction(Intent.ACTION_SEND);
+        Intent intent = new Intent(this, VideoActivity.class);
+        intent.putExtra("url", url[0]);
         startActivity(intent);
     }
 }

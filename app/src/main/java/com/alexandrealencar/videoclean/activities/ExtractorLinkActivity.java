@@ -25,6 +25,7 @@ import com.android.volley.toolbox.Volley;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,8 +60,17 @@ public class ExtractorLinkActivity extends AppCompatActivity implements LinkPage
         return pattern.matcher(response);
     }
 
-    private List<String> getListOfLinksHref(String response ){
-        List<String> listlinks = new ArrayList<>();
+    private String getAbsoluteUrl(String url) {
+        for (int i = url.length() - 1; url.charAt(i) != '/'; i--) {
+            url = url.substring(0, i);
+        }
+        return (url.length() >= 7 && url.length() <= 8) ? url + "/" : url;
+    }
+
+    private List<String> getListOfLinksHref(String url , String response ){
+        url = getAbsoluteUrl(url);
+
+        List<String> listlinks = new LinkedList<>();
         Matcher comparator = matcher("<a.*?a>", response);
         while (comparator.find()) {
             listlinks.add(comparator.group(0));
@@ -70,9 +80,13 @@ public class ExtractorLinkActivity extends AppCompatActivity implements LinkPage
         listlinks.clear();
 
         for (Object link: arraylinks) {
-            comparator = matcher("href=(\"|')http.*?(\"|')", link.toString() );
+            comparator = matcher("href=(\"|').*?(\"|')", link.toString() );
             if( comparator.find() ){
-                String href = comparator.group(0).replaceAll("href=([\"'])" , "" ).replaceAll("([\"'])" , "" );
+                String href = "";
+                if( !comparator.group(0).contains("http") ){
+                    href += url;
+                }
+                href += comparator.group(0).replaceAll("href=([\"'])" , "" ).replaceAll("([\"'])" , "" );
                 String text = link.toString().replaceAll("<.*?>" , "" );
                 listlinks.add( href + ',' + text );
             }
@@ -116,14 +130,14 @@ public class ExtractorLinkActivity extends AppCompatActivity implements LinkPage
         return Toast.makeText(this , message ,Toast.LENGTH_SHORT);
     }
 
-    private void getContentSite(String url) {
+    private void getContentSite(final String url) {
         RequestQueue queue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @SuppressLint("SetTextI18n")
                     @Override
                     public void onResponse(String response) {
-                        refreshRecyclerView( getListOfLinksHref(response) );
+                        refreshRecyclerView( getListOfLinksHref(url,response) );
                     }
                 },
                 new Response.ErrorListener() {
@@ -144,9 +158,69 @@ public class ExtractorLinkActivity extends AppCompatActivity implements LinkPage
     }
 
     @Override
-    public void onClickIem(String[] s) {
+    public void onClickIem(final String[] s) {
         @SuppressLint("SimpleDateFormat")
-        QueryHistory queryHistory = new QueryHistory(s[1] , s[0] , new SimpleDateFormat("dd-MM-yyyy").format(new Date()) );
-        videoCleanController.insert(queryHistory);
+        final RequestQueue queue = Volley.newRequestQueue(this);
+        final StringRequest stringRequest = new StringRequest(Request.Method.GET, s[0],
+                new Response.Listener<String>() {
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void onResponse(String response) {
+                        @SuppressLint("SimpleDateFormat") QueryHistory queryHistory = new QueryHistory(s[1] , getListOfLinksHtml( s[0], response).get(0) , new SimpleDateFormat("dd-MM-yyyy").format(new Date()) );
+                        videoCleanController.insert(queryHistory);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        message("Nenhum site encontrado!").show();
+                    }
+                });
+        queue.add(stringRequest);
     }
+
+
+    private List<String> getListOfLinksHtml(String url, String response) {
+        List<String> links = new ArrayList<>();
+        Matcher comparator = matcher("<video.*?</video>", response);
+
+        while (comparator.find()) {
+            String value = comparator.group(0);
+            if (value.contains("source")) {
+                Matcher secondary = matcher("\\<source(.*?)\\>", value);
+                while (secondary.find() && secondary.group(0).contains(".mp4")) {
+                    links.add(secondary.group(0));
+                }
+            } else if (value.contains(".mp4")) {
+                links.add(value);
+            }
+        }
+
+        comparator = matcher("src='.*?'", links.toString().replaceAll("\"", "\'"));
+        links.clear();
+
+        while (comparator.find()) {
+            if (!links.contains(comparator.group(0)))
+                links.add((!comparator.group(0).contains("http") ? url : "") + comparator.group(0).replace("src=", "").replaceAll("\'", ""));
+        }
+
+        if (links.isEmpty()) {
+            comparator = matcher("http.*?\"", response.replaceAll("\'", "\""));
+            while (comparator.find()) {
+                String value = comparator.group(0).replaceAll("\"", "");
+                String link = (!value.contains("http") ? url : "") + value;
+                if (value.contains(".mp4") && !links.contains(link)) {
+                    links.add(link);
+                }
+            }
+        }
+        for (int i = 0; i < links.size(); i++) {
+            links.set(i, (links.get(i).contains("://")) ? links.get(i) : links.get(i).replaceAll("\\/", ""));
+        }
+
+        return links;
+    }
+
+
+
 }

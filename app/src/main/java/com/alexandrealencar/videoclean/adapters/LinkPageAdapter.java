@@ -43,8 +43,15 @@ public class LinkPageAdapter extends RecyclerView.Adapter<LinkPageAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         final String[] p = mDataset.get(position).split(",");
+        if(p.length > 0)
+        try {
+            holder.mCheckBox.setText(p[1]);
+        }catch (IndexOutOfBoundsException e){
+            holder.mCheckBox.setText("-");
+        }
 
-        holder.mCheckBox.setText(p[1]);
+
+
         holder.mCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
