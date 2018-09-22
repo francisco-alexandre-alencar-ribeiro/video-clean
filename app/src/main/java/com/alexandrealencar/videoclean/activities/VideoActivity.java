@@ -1,37 +1,62 @@
 package com.alexandrealencar.videoclean.activities;
 
+import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 import android.widget.VideoView;
 import com.alexandrealencar.videoclean.R;
-
-import java.util.List;
-
+import com.alexandrealencar.videoclean.database.VideoCleanController;
+import com.alexandrealencar.videoclean.entities.QueryHistory;
+import com.alexandrealencar.videoclean.database.QueryContract.QueryEntry;
+import java.util.Date;
 
 public class VideoActivity extends AppCompatActivity {
     VideoView videoView = null;
     MediaController mediaController = null;
-    int position = 0;
+    VideoCleanController videoCleanController = null;
+    QueryHistory queryHistory = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
         videoView = findViewById(R.id.videoView);
-        Uri uri = Uri.parse(getIntent().getStringExtra("url"));
-        videoView.setVideoURI( uri );
+
+
+        String url = getIntent().getStringArrayExtra(QueryEntry.COLUMN_NAME_LINK)[0];
+
+        videoView.setVideoURI( Uri.parse(url) );
         mediaController = new MediaController(this);
         videoView.setMediaController(mediaController);
         mediaController.setAnchorView( videoView );
+
+
+        videoCleanController = new VideoCleanController(this);
+        Cursor cursor = videoCleanController.select(QueryEntry.COLUMN_NAME_LINK + " = ? " , new String[]{url});
+
+        queryHistory = new QueryHistory();
+        queryHistory.setVisualized(1);
+        queryHistory.setLink( url );
+        queryHistory.setDateUpdate( new Date().getTime() );
+        if( !cursor.moveToNext() ){
+            queryHistory.setDescription( url );
+            queryHistory.setDateCreate( new Date().getTime() );
+            queryHistory.setId(videoCleanController.insert(queryHistory));
+        }else{
+            queryHistory.setDescription( cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_DESCRIPTION) ) );
+            queryHistory.setId( cursor.getLong(cursor.getColumnIndex(QueryEntry._ID)) );
+            queryHistory.setIsFavorite( cursor.getInt(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_IS_FAVORITE )) );
+            queryHistory.setCurrentPosition(cursor.getInt(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_CURRENT_POSITION) ) );
+            videoCleanController.update(queryHistory);
+        }
+
+        videoView.seekTo(queryHistory.getCurrentPosition());
         videoView.start();
-
-
 
         /*final ProgressBar spinnerView = findViewById(R.id.my_spinner);
         final MediaPlayer.OnInfoListener onInfoToPlayStateListener = new MediaPlayer.OnInfoListener() {
@@ -58,7 +83,8 @@ public class VideoActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         if (videoView != null){
-            position = videoView.getCurrentPosition();
+            queryHistory.setCurrentPosition(videoView.getCurrentPosition());
+            videoCleanController.update(queryHistory);
             videoView.pause();
         }
     }
@@ -67,7 +93,7 @@ public class VideoActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (videoView != null) {
-            videoView.seekTo(position);
+            videoView.seekTo(queryHistory.getCurrentPosition());
             videoView.start();
         }
     }

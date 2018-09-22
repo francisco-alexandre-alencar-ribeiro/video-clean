@@ -5,22 +5,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.util.Patterns;
 import android.view.MenuInflater;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SearchView;
 import android.widget.Toast;
-
 import com.alexandrealencar.videoclean.R;
-import com.alexandrealencar.videoclean.adapters.LinkVideoAdapter;
+import com.alexandrealencar.videoclean.adapters.LinkPageAdapter;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -28,16 +25,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener, LinkVideoAdapter.OnListInteraction {
-
-    private RecyclerView recyclerView;
-    private LinkVideoAdapter linkAdapter;
+public class MainActivity extends VideoCleanActivity
+        implements NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +45,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         recyclerView = findViewById(R.id.recyclerViewLinkVideo);
-        linkAdapter = new LinkVideoAdapter(this);
+        linkAdapter = new LinkPageAdapter(this);
         recyclerView.setAdapter(linkAdapter);
     }
 
@@ -85,7 +74,7 @@ public class MainActivity extends AppCompatActivity
                 searchView.setFocusable(true);
                 searchView.setIconified(false);
                 searchView.requestFocusFromTouch();
-                searchView.setQuery(extras.getString("android.intent.extra.TEXT"), true);
+                searchView.setQuery(extras.getString(Intent.EXTRA_TEXT), true);
             }
         }
         return true;
@@ -105,7 +94,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_extractor_link) {
             startActivity(new Intent(this, ExtractorLinkActivity.class));
         } else if (id == R.id.nav_query_history) {
-
+            startActivity(new Intent(this, HistoryActivity.class));
         } else if (id == R.id.nav_downloads) {
 
         } else if (id == R.id.nav_favorites) {
@@ -170,79 +159,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
         queue.add(stringRequest);
-    }
-
-    private void refreshRecyclerView(List<String> links) {
-        linkAdapter.setmDataset(links);
-        recyclerView.setAdapter(linkAdapter);
-        if (links.isEmpty()) {
-            message("Não há mídia disponível!").show();
-        }
-    }
-
-    private Toast message(String message) {
-        return Toast.makeText(this, message, Toast.LENGTH_SHORT);
-    }
-
-    private Matcher matcher(String regex, String response) {
-        response = response.replace("\n", "").replace("\r", "");
-        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-        return pattern.matcher(response);
-    }
-
-    private List<String> getListOfLinksHtml(String url, String response) {
-        List<String> links = new ArrayList<>();
-        Matcher comparator = matcher("<video.*?</video>", response);
-
-        while (comparator.find()) {
-            String value = comparator.group(0);
-            if (value.contains("source")) {
-                Matcher secondary = matcher("\\<source(.*?)\\>", value);
-                while (secondary.find() && secondary.group(0).contains(".mp4")) {
-                    links.add(secondary.group(0));
-                }
-            } else if (value.contains(".mp4")) {
-                links.add(value);
-            }
-        }
-
-        comparator = matcher("src='.*?'", links.toString().replaceAll("\"", "\'"));
-        links.clear();
-
-        while (comparator.find()) {
-            if (!links.contains(comparator.group(0)))
-                links.add((!comparator.group(0).contains("http") ? url : "") + comparator.group(0).replace("src=", "").replaceAll("\'", ""));
-        }
-
-        if (links.isEmpty()) {
-            comparator = matcher("http.*?\"", response.replaceAll("\'", "\""));
-            while (comparator.find()) {
-                String value = comparator.group(0).replaceAll("\"", "");
-                String link = (!value.contains("http") ? url : "") + value;
-                if (value.contains(".mp4") && !links.contains(link)) {
-                    links.add(link);
-                }
-            }
-        }
-        for (int i = 0; i < links.size(); i++) {
-            links.set(i, (links.get(i).contains("://")) ? links.get(i) : links.get(i).replaceAll("\\/", ""));
-        }
-
-        return links;
-    }
-
-    private String getAbsoluteUrl(String url) {
-        for (int i = url.length() - 1; url.charAt(i) != '/'; i--) {
-            url = url.substring(0, i);
-        }
-        return (url.length() >= 7 && url.length() <= 8) ? url + "/" : url;
-    }
-
-    @Override
-    public void onClickIem(String url) {
-        Intent intent = new Intent(this, VideoActivity.class);
-        intent.putExtra("url", url);
-        startActivity(intent);
     }
 
 }

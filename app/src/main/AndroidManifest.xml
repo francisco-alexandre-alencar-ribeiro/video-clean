@@ -44,7 +44,12 @@
         <activity
             android:name=".activities.FavoriteLinkActivity"
             android:label="@string/liskFavorites"
-            android:screenOrientation="portrait" ></activity>
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.HistoryActivity"
+            android:label="@string/history"
+            android:screenOrientation="portrait" />
+        <activity android:name=".activities.VideoCleanActivity"/>
     </application>
 
 </manifest>

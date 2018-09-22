@@ -8,15 +8,15 @@ import com.alexandrealencar.videoclean.database.QueryContract.QueryEntry;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FavoriteLinkActivity extends VideoCleanActivity {
+public class HistoryActivity extends VideoCleanActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_favorite_link);
-        recyclerView = findViewById(R.id.recyclerViewLinkVideo);
+        setContentView(R.layout.activity_history);
+        recyclerView = findViewById(R.id.recyclerViewLinkPage);
         linkAdapter = new LinkPageAdapter(this);
-        linkAdapter.setmDataset(getListLinks(videoCleanController.selectFavorite()));
+        linkAdapter.setmDataset( getListLinks( videoCleanController.selectHistory() ) );
         recyclerView.setAdapter(linkAdapter);
     }
 
@@ -25,9 +25,16 @@ public class FavoriteLinkActivity extends VideoCleanActivity {
         while(cursor.moveToNext()){
             String description = cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_DESCRIPTION));
             String link = cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_LINK));
-            links.add(new String[]{ link , description});
+            links.add(new String[]{link,description});
         }
         cursor.close();
         return links;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        linkAdapter.setmDataset( getListLinks( videoCleanController.selectHistory() ) );
+        recyclerView.setAdapter(linkAdapter);
     }
 }
