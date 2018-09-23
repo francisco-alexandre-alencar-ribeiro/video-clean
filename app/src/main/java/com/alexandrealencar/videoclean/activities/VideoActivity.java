@@ -56,7 +56,6 @@ public class VideoActivity extends AppCompatActivity implements MediaPlayer.OnIn
             videoCleanController.update(queryHistory);
         }
         videoView.seekTo(queryHistory.getCurrentPosition());
-        videoView.setSaveEnabled(true);
         videoView.start();
         videoView.setOnInfoListener(this);
     }
