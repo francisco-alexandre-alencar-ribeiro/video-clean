@@ -15,11 +15,12 @@ import com.alexandrealencar.videoclean.entities.QueryHistory;
 import com.alexandrealencar.videoclean.database.QueryContract.QueryEntry;
 import java.util.Date;
 
-public class VideoActivity extends AppCompatActivity {
+public class VideoActivity extends AppCompatActivity implements MediaPlayer.OnInfoListener {
     VideoView videoView = null;
     MediaController mediaController = null;
     VideoCleanController videoCleanController = null;
     QueryHistory queryHistory = null;
+    ProgressBar spinnerView = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,36 +55,17 @@ public class VideoActivity extends AppCompatActivity {
             queryHistory.setCurrentPosition(cursor.getInt(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_CURRENT_POSITION) ) );
             videoCleanController.update(queryHistory);
         }
-
         videoView.seekTo(queryHistory.getCurrentPosition());
+        videoView.setSaveEnabled(true);
         videoView.start();
-
-        /*final ProgressBar spinnerView = findViewById(R.id.my_spinner);
-        final MediaPlayer.OnInfoListener onInfoToPlayStateListener = new MediaPlayer.OnInfoListener() {
-
-            @Override
-            public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                if (MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START == what) {
-                    spinnerView.setVisibility(View.GONE);
-                }
-                if (MediaPlayer.MEDIA_INFO_BUFFERING_START == what) {
-                    spinnerView.setVisibility(View.VISIBLE);
-                }
-                if (MediaPlayer.MEDIA_INFO_BUFFERING_END == what) {
-                    spinnerView.setVisibility(View.VISIBLE);
-                }
-                return false;
-            }
-        };
-        videoView.setOnInfoListener(onInfoToPlayStateListener);*/
-
+        videoView.setOnInfoListener(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         if (videoView != null){
-            queryHistory.setCurrentPosition(videoView.getCurrentPosition());
+            queryHistory.setCurrentPosition( ( videoView.getCurrentPosition() == 0 )? queryHistory.getCurrentPosition() : videoView.getCurrentPosition() );
             videoCleanController.update(queryHistory);
             videoView.pause();
         }
@@ -92,9 +74,24 @@ public class VideoActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (videoView != null) {
+        if (videoView != null){
             videoView.seekTo(queryHistory.getCurrentPosition());
             videoView.start();
         }
+    }
+
+    @Override
+    public boolean onInfo(MediaPlayer mp, int what, int extra) {
+        spinnerView = findViewById(R.id.spinner);
+        if (MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START == what) {
+            spinnerView.setVisibility(View.GONE);
+        }
+        if (MediaPlayer.MEDIA_INFO_BUFFERING_START == what) {
+            spinnerView.setVisibility(View.VISIBLE);
+        }
+        if (MediaPlayer.MEDIA_INFO_BUFFERING_END == what) {
+            spinnerView.setVisibility(View.INVISIBLE);
+        }
+        return false;
     }
 }
