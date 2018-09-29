@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Patterns;
 import android.widget.Toast;
 import com.alexandrealencar.videoclean.adapters.LinkPageAdapter;
 import com.alexandrealencar.videoclean.database.QueryContract;
@@ -67,7 +68,31 @@ public class VideoCleanActivity extends AppCompatActivity implements  LinkPageAd
         links.clear();
 
         while (comparator.find()) {
-            String link = (!comparator.group(0).contains("http") ? url : "") + comparator.group(0).replace("src=", "").replaceAll("\'", "");
+
+            boolean isUrl = (Patterns.WEB_URL.matcher(comparator.group(0)).find());
+
+            String link = "";
+            String comparation = comparator.group(0).replace("src=", "").replaceAll("\'", "");
+            if (isUrl && matcher("https?", comparator.group(0)).find() ) {
+                link = comparation;
+            } else if (!isUrl && !matcher("https?", comparator.group(0)).find() ){
+                link = url + comparation;
+            } else if (isUrl && !matcher("https?", comparator.group(0)).find()){
+                String[] arrayString = comparation.replace("//" , "/" ).split("/");
+                List<String> listString = new ArrayList<>();
+                for (String str : arrayString ){
+                    if (!str.equals("")){
+                        listString.add(str);
+                    }
+                }
+                link = listString.toString().replace("," , "/").replaceAll("\\[|\\]" , "").replaceAll(" " , "");
+                if (url.equals("https://")){
+                    link = "https://" + link;
+                } else {
+                    link = "http://" + link;
+                }
+            }
+
             if (!links.contains(new String[]{link,link})){
                 links.add(new String[]{link,link});
             }
