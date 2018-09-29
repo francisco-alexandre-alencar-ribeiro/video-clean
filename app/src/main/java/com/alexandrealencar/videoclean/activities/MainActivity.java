@@ -1,6 +1,7 @@
 package com.alexandrealencar.videoclean.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,7 +20,6 @@ import android.widget.Toast;
 
 import com.alexandrealencar.videoclean.R;
 import com.alexandrealencar.videoclean.adapters.LinkPageAdapter;
-import com.alexandrealencar.videoclean.entities.QueryHistory;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -137,6 +137,7 @@ public class MainActivity extends VideoCleanActivity
     }
 
     private void getContentSite(String url) {
+        final Context context = this;
         final String absolute = getAbsoluteUrl(url);
         RequestQueue queue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -144,7 +145,7 @@ public class MainActivity extends VideoCleanActivity
                     @SuppressLint("SetTextI18n")
                     @Override
                     public void onResponse(String response) {
-                        refreshRecyclerView(getListOfLinksHtml(absolute, response));
+                        getListOfLinksHtml((MainActivity) context, absolute, response );
                     }
                 },
                 new Response.ErrorListener() {

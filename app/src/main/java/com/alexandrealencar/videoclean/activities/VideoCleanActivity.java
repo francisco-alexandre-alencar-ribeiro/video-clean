@@ -1,5 +1,6 @@
 package com.alexandrealencar.videoclean.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +11,12 @@ import android.widget.Toast;
 import com.alexandrealencar.videoclean.adapters.LinkPageAdapter;
 import com.alexandrealencar.videoclean.database.QueryContract;
 import com.alexandrealencar.videoclean.database.VideoCleanController;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +105,7 @@ public class VideoCleanActivity extends AppCompatActivity implements LinkPageAda
             comparator = matcher("http.*?\"", response.replaceAll("\'", "\""));
             while (comparator.find()) {
                 String value = comparator.group(0).replaceAll("\"", "");
-                String link = (!value.contains("http") ? url : "") + value;
+                String link = value;
                 if (value.contains(".mp4") && !links.contains(new String[]{link, link})) {
                     links.add(new String[]{link, link});
                 }
@@ -111,6 +118,39 @@ public class VideoCleanActivity extends AppCompatActivity implements LinkPageAda
         }
 
         return links;
+    }
+
+    protected void getListOfLinksHtml(final MainActivity mainActivity , final String url, String response) {
+        final List<String[]> links = this.getListOfLinksHtml(url,response);
+        List<String> linksIframe = new ArrayList<>();
+        Matcher comparator = matcher("<iframe.*?>", response);
+        while (comparator.find()){
+            Matcher secundario = matcher("src='.*?'", comparator.group(0).replaceAll("\"", "\'"));
+            if( secundario.find() ){
+                linksIframe.add( secundario.group(0).replace("src=", "").replaceAll("\'", "") );
+            }
+        }
+        if (!linksIframe.isEmpty()){
+            for (final String link : linksIframe ){
+                RequestQueue queue = Volley.newRequestQueue(this);
+                StringRequest stringRequest = new StringRequest(Request.Method.GET, link,
+                        new Response.Listener<String>() {
+                            @SuppressLint("SetTextI18n")
+                            @Override
+                            public void onResponse(String response) {
+                                links.addAll(getListOfLinksHtml(link,response));
+                                mainActivity.refreshRecyclerView(links);
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {}
+                        });
+                queue.add(stringRequest);
+            }
+        } else {
+            mainActivity.refreshRecyclerView(links);
+        }
     }
 
     protected String getAbsoluteUrl(String url) {
