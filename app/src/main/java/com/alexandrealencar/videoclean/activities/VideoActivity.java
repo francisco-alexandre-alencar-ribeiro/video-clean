@@ -9,10 +9,12 @@ import android.view.View;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.VideoView;
+
 import com.alexandrealencar.videoclean.R;
 import com.alexandrealencar.videoclean.database.VideoCleanController;
 import com.alexandrealencar.videoclean.entities.QueryHistory;
 import com.alexandrealencar.videoclean.database.QueryContract.QueryEntry;
+
 import java.util.Date;
 
 public class VideoActivity extends AppCompatActivity implements MediaPlayer.OnInfoListener {
@@ -27,32 +29,27 @@ public class VideoActivity extends AppCompatActivity implements MediaPlayer.OnIn
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
         videoView = findViewById(R.id.videoView);
-
-
         String url = getIntent().getStringArrayExtra(QueryEntry.COLUMN_NAME_LINK)[0];
-
-        videoView.setVideoURI( Uri.parse(url) );
+        videoView.setVideoURI(Uri.parse(url));
         mediaController = new MediaController(this);
         videoView.setMediaController(mediaController);
-        mediaController.setAnchorView( videoView );
-
-
+        mediaController.setAnchorView(videoView);
         videoCleanController = new VideoCleanController(this);
-        Cursor cursor = videoCleanController.select(QueryEntry.COLUMN_NAME_LINK + " = ? " , new String[]{url});
+        Cursor cursor = videoCleanController.select(QueryEntry.COLUMN_NAME_LINK + " = ? ", new String[]{url});
 
         queryHistory = new QueryHistory();
         queryHistory.setVisualized(1);
-        queryHistory.setLink( url );
-        queryHistory.setDateUpdate( new Date().getTime() );
-        if( !cursor.moveToNext() ){
-            queryHistory.setDescription( url );
-            queryHistory.setDateCreate( new Date().getTime() );
+        queryHistory.setLink(url);
+        queryHistory.setDateUpdate(new Date().getTime());
+        if (!cursor.moveToNext()) {
+            queryHistory.setDescription(url);
+            queryHistory.setDateCreate(new Date().getTime());
             queryHistory.setId(videoCleanController.insert(queryHistory));
-        }else{
-            queryHistory.setDescription( cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_DESCRIPTION) ) );
-            queryHistory.setId( cursor.getLong(cursor.getColumnIndex(QueryEntry._ID)) );
-            queryHistory.setIsFavorite( cursor.getInt(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_IS_FAVORITE )) );
-            queryHistory.setCurrentPosition(cursor.getInt(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_CURRENT_POSITION) ) );
+        } else {
+            queryHistory.setDescription(cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_DESCRIPTION)));
+            queryHistory.setId(cursor.getLong(cursor.getColumnIndex(QueryEntry._ID)));
+            queryHistory.setIsFavorite(cursor.getInt(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_IS_FAVORITE)));
+            queryHistory.setCurrentPosition(cursor.getInt(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_CURRENT_POSITION)));
             videoCleanController.update(queryHistory);
         }
         videoView.seekTo(queryHistory.getCurrentPosition());
@@ -63,8 +60,8 @@ public class VideoActivity extends AppCompatActivity implements MediaPlayer.OnIn
     @Override
     protected void onPause() {
         super.onPause();
-        if (videoView != null){
-            queryHistory.setCurrentPosition( ( videoView.getCurrentPosition() == 0 )? queryHistory.getCurrentPosition() : videoView.getCurrentPosition() );
+        if (videoView != null) {
+            queryHistory.setCurrentPosition((videoView.getCurrentPosition() == 0) ? queryHistory.getCurrentPosition() : videoView.getCurrentPosition());
             videoCleanController.update(queryHistory);
             videoView.pause();
         }
@@ -73,7 +70,7 @@ public class VideoActivity extends AppCompatActivity implements MediaPlayer.OnIn
     @Override
     protected void onResume() {
         super.onResume();
-        if (videoView != null){
+        if (videoView != null) {
             videoView.seekTo(queryHistory.getCurrentPosition());
             videoView.start();
         }

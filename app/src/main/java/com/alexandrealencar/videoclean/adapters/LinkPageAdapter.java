@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import com.alexandrealencar.videoclean.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,7 @@ public class LinkPageAdapter extends RecyclerView.Adapter<LinkPageAdapter.ViewHo
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView mTextView1;
+
         ViewHolder(View v) {
             super(v);
             mTextView1 = v.findViewById(android.R.id.text1);
@@ -28,7 +31,7 @@ public class LinkPageAdapter extends RecyclerView.Adapter<LinkPageAdapter.ViewHo
         mDataset = new ArrayList<>();
     }
 
-    public void setmDataset(List<String[]> myDataset){
+    public void setmDataset(List<String[]> myDataset) {
         mDataset = myDataset;
     }
 
@@ -41,10 +44,9 @@ public class LinkPageAdapter extends RecyclerView.Adapter<LinkPageAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         final String[] p = mDataset.get(position);
-
         try {
             holder.mTextView1.setText(p[1]);
-        }catch (IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             holder.mTextView1.setText(p[0]);
         }
         holder.mTextView1.setOnClickListener(new View.OnClickListener() {
@@ -62,7 +64,7 @@ public class LinkPageAdapter extends RecyclerView.Adapter<LinkPageAdapter.ViewHo
         return mDataset.size();
     }
 
-    public interface OnListInteraction{
+    public interface OnListInteraction {
         public void onClickIem(String[] s);
     }
 }

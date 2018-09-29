@@ -7,29 +7,43 @@ import android.database.sqlite.SQLiteDatabase;
 import com.alexandrealencar.videoclean.database.QueryContract.QueryEntry;
 import com.alexandrealencar.videoclean.entities.QueryHistory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class VideoCleanController {
     private SQLiteDatabase db;
+    private Context context;
 
     public VideoCleanController(Context context) {
+        this.context = context;
+    }
+
+    private void getConnection(){
         db = new VideoCleanDB(context).getWritableDatabase();
     }
 
     public Cursor select( String selection , String[] selectionArqs ) {
+        getConnection();
         String[] columns = {QueryEntry._ID, QueryEntry.COLUMN_NAME_LINK, QueryEntry.COLUMN_NAME_DESCRIPTION , QueryEntry.COLUMN_NAME_IS_FAVORITE , QueryEntry.COLUMN_NAME_CURRENT_POSITION};
         return db.query(QueryEntry.TABLE_NAME, columns, selection, selectionArqs, null, null, QueryEntry._ID );
     }
 
-    public Cursor selectFavorite() {
+    public List<String[]> selectFavorite() {
+        getConnection();
         String[] columns = {QueryEntry._ID, QueryEntry.COLUMN_NAME_LINK, QueryEntry.COLUMN_NAME_DESCRIPTION};
-        return db.query(QueryEntry.TABLE_NAME, columns, QueryEntry.COLUMN_NAME_IS_FAVORITE + " = ? ", new String[]{ "1" } , null, null, QueryEntry._ID );
+        Cursor cursor = db.query(QueryEntry.TABLE_NAME, columns, QueryEntry.COLUMN_NAME_IS_FAVORITE + " = ? ", new String[]{ "1" } , null, null, QueryEntry._ID );
+        return cursorToList(cursor);
     }
 
-    public Cursor selectHistory() {
+    public List<String[]> selectHistory() {
+        getConnection();
         String[] columns = {QueryEntry._ID, QueryEntry.COLUMN_NAME_LINK, QueryEntry.COLUMN_NAME_DESCRIPTION};
-        return db.query(QueryEntry.TABLE_NAME, columns, QueryEntry.COLUMN_NAME_VISUALIZED + " = ? ", new String[]{ "1" } , null, null, QueryEntry.COLUMN_NAME_DATE_UPDATE + " DESC" );
+        Cursor cursor = db.query(QueryEntry.TABLE_NAME, columns, QueryEntry.COLUMN_NAME_VISUALIZED + " = ? ", new String[]{ "1" } , null, null, QueryEntry.COLUMN_NAME_DATE_UPDATE + " DESC" );
+        return cursorToList(cursor);
     }
 
     public long insert(QueryHistory queryHistory) {
+        getConnection();
         ContentValues values = new ContentValues();
         values.put(QueryEntry.COLUMN_NAME_DESCRIPTION, queryHistory.getDescription());
         values.put(QueryEntry.COLUMN_NAME_LINK, queryHistory.getLink());
@@ -38,15 +52,21 @@ public final class VideoCleanController {
         values.put(QueryEntry.COLUMN_NAME_VISUALIZED, queryHistory.getVisualized());
         values.put(QueryEntry.COLUMN_NAME_IS_FAVORITE, queryHistory.getIsFavorite());
         values.put(QueryEntry.COLUMN_NAME_CURRENT_POSITION, queryHistory.getCurrentPosition());
-        return db.insert(QueryEntry.TABLE_NAME, null, values);
+        long id = db.insert(QueryEntry.TABLE_NAME, null, values);
+        db.close();
+        return id;
     }
 
     public long delete(QueryHistory queryHistory) {
+        getConnection();
         String[] selectionArgs = { queryHistory.getId().toString() };
-        return db.delete(QueryEntry.TABLE_NAME, QueryEntry._ID, selectionArgs);
+        long id = db.delete(QueryEntry.TABLE_NAME, QueryEntry._ID, selectionArgs);
+        db.close();
+        return id;
     }
 
-    public int update(QueryHistory queryHistory){
+    public long update(QueryHistory queryHistory){
+        getConnection();
         ContentValues values = new ContentValues();
         values.put(QueryEntry.COLUMN_NAME_DESCRIPTION, queryHistory.getDescription());
         values.put(QueryEntry.COLUMN_NAME_LINK, queryHistory.getLink());
@@ -54,7 +74,19 @@ public final class VideoCleanController {
         values.put(QueryEntry.COLUMN_NAME_VISUALIZED, queryHistory.getVisualized());
         values.put(QueryEntry.COLUMN_NAME_IS_FAVORITE, queryHistory.getIsFavorite());
         values.put(QueryEntry.COLUMN_NAME_CURRENT_POSITION, queryHistory.getCurrentPosition());
-        return db.update(QueryEntry.TABLE_NAME, values, QueryEntry._ID + " = " + queryHistory.getId().toString(), null);
+        long id = db.update(QueryEntry.TABLE_NAME, values, QueryEntry._ID + " = " + queryHistory.getId().toString(), null);
+        db.close();
+        return id;
     }
 
+    private List<String[]> cursorToList(Cursor cursor){
+        List<String[]> links = new ArrayList<>();
+        while(cursor.moveToNext()){
+            String description = cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_DESCRIPTION));
+            String link = cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_LINK));
+            links.add(new String[]{link,description});
+        }
+        cursor.close();
+        return links;
+    }
 }

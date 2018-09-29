@@ -16,14 +16,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SearchView;
 import android.widget.Toast;
+
 import com.alexandrealencar.videoclean.R;
 import com.alexandrealencar.videoclean.adapters.LinkPageAdapter;
+import com.alexandrealencar.videoclean.entities.QueryHistory;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
+import java.util.Date;
 
 public class MainActivity extends VideoCleanActivity
         implements NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener {
@@ -34,16 +38,13 @@ public class MainActivity extends VideoCleanActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
         recyclerView = findViewById(R.id.recyclerViewLinkVideo);
         linkAdapter = new LinkPageAdapter(this);
         recyclerView.setAdapter(linkAdapter);
@@ -89,8 +90,6 @@ public class MainActivity extends VideoCleanActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-
-
         if (id == R.id.nav_extractor_link) {
             startActivity(new Intent(this, ExtractorLinkActivity.class));
         } else if (id == R.id.nav_query_history) {
@@ -100,7 +99,6 @@ public class MainActivity extends VideoCleanActivity
         } else if (id == R.id.nav_favorites) {
             startActivity(new Intent(this, FavoriteLinkActivity.class));
         }
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -119,8 +117,6 @@ public class MainActivity extends VideoCleanActivity
     @Override
     public boolean onQueryTextChange(String url) {
         boolean isUrl = (Patterns.WEB_URL.matcher(url).find() && matcher("https?://", url).find());
-
-
         if (!url.isEmpty()) {
             Toast toast = null;
             if (isUrl) {
@@ -137,7 +133,6 @@ public class MainActivity extends VideoCleanActivity
                 }
             }, 1500);
         }
-
         return false;
     }
 
@@ -160,5 +155,4 @@ public class MainActivity extends VideoCleanActivity
                 });
         queue.add(stringRequest);
     }
-
 }

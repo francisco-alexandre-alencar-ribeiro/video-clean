@@ -6,15 +6,17 @@ import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Patterns;
 import android.widget.Toast;
+
 import com.alexandrealencar.videoclean.adapters.LinkPageAdapter;
 import com.alexandrealencar.videoclean.database.QueryContract;
 import com.alexandrealencar.videoclean.database.VideoCleanController;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class VideoCleanActivity extends AppCompatActivity implements  LinkPageAdapter.OnListInteraction {
+public class VideoCleanActivity extends AppCompatActivity implements LinkPageAdapter.OnListInteraction {
     protected RecyclerView recyclerView;
     protected LinkPageAdapter linkAdapter;
     protected VideoCleanController videoCleanController;
@@ -22,7 +24,7 @@ public class VideoCleanActivity extends AppCompatActivity implements  LinkPageAd
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    videoCleanController = new VideoCleanController(this);
+        videoCleanController = new VideoCleanController(this);
     }
 
     protected void refreshRecyclerView(List<String[]> links) {
@@ -52,49 +54,43 @@ public class VideoCleanActivity extends AppCompatActivity implements  LinkPageAd
             if (value.contains("source")) {
                 Matcher secondary = matcher("\\<source(.*?)\\>", value);
                 while (secondary.find() && secondary.group(0).contains(".mp4")) {
-                    links.add(new String[]{secondary.group(0),secondary.group(0)});
+                    links.add(new String[]{secondary.group(0), secondary.group(0)});
                 }
             } else if (value.contains(".mp4")) {
-                links.add(new String[]{value,value});
+                links.add(new String[]{value, value});
             }
         }
-
         String listLinks = "";
-        for(String[] link : links){
+        for (String[] link : links) {
             listLinks += link[0];
         }
-
         comparator = matcher("src='.*?'", listLinks.replaceAll("\"", "\'"));
         links.clear();
-
         while (comparator.find()) {
-
             boolean isUrl = (Patterns.WEB_URL.matcher(comparator.group(0)).find());
-
             String link = "";
             String comparation = comparator.group(0).replace("src=", "").replaceAll("\'", "");
-            if (isUrl && matcher("https?", comparator.group(0)).find() ) {
+            if (isUrl && matcher("https?", comparator.group(0)).find()) {
                 link = comparation;
-            } else if (!isUrl && !matcher("https?", comparator.group(0)).find() ){
+            } else if (!isUrl && !matcher("https?", comparator.group(0)).find()) {
                 link = url + comparation;
-            } else if (isUrl && !matcher("https?", comparator.group(0)).find()){
-                String[] arrayString = comparation.replace("//" , "/" ).split("/");
+            } else if (isUrl && !matcher("https?", comparator.group(0)).find()) {
+                String[] arrayString = comparation.replace("//", "/").split("/");
                 List<String> listString = new ArrayList<>();
-                for (String str : arrayString ){
-                    if (!str.equals("")){
+                for (String str : arrayString) {
+                    if (!str.equals("")) {
                         listString.add(str);
                     }
                 }
-                link = listString.toString().replace("," , "/").replaceAll("\\[|\\]" , "").replaceAll(" " , "");
-                if (url.equals("https://")){
+                link = listString.toString().replace(",", "/").replaceAll("\\[|\\]", "").replaceAll(" ", "");
+                if (url.equals("https://")) {
                     link = "https://" + link;
                 } else {
                     link = "http://" + link;
                 }
             }
-
-            if (!links.contains(new String[]{link,link})){
-                links.add(new String[]{link,link});
+            if (!links.contains(new String[]{link, link})) {
+                links.add(new String[]{link, link});
             }
         }
 
@@ -103,15 +99,15 @@ public class VideoCleanActivity extends AppCompatActivity implements  LinkPageAd
             while (comparator.find()) {
                 String value = comparator.group(0).replaceAll("\"", "");
                 String link = (!value.contains("http") ? url : "") + value;
-                if (value.contains(".mp4") && !links.contains(new String[]{link,link})) {
-                    links.add(new String[]{link,link});
+                if (value.contains(".mp4") && !links.contains(new String[]{link, link})) {
+                    links.add(new String[]{link, link});
                 }
             }
         }
         for (int i = 0; i < links.size(); i++) {
             String link = (links.get(i)[0].contains("://")) ? links.get(i)[0] : links.get(i)[0].replaceAll("\\/", "");
-            link = link.replaceAll( "\\\\" , "/");
-            links.set(i, new String[]{link,link});
+            link = link.replaceAll("\\\\", "/");
+            links.set(i, new String[]{link, link});
         }
 
         return links;

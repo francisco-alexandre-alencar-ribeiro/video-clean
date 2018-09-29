@@ -20,9 +20,10 @@ public final class QueryHistory {
         this.currentPosition = currentPosition;
     }
 
-    public QueryHistory(){}
+    public QueryHistory() {
+    }
 
-    public QueryHistory(String description,String link,Long dateCreate , Long dateUpdate) {
+    public QueryHistory(String description, String link, Long dateCreate, Long dateUpdate) {
         this.id = id;
         this.description = description;
         this.link = link;

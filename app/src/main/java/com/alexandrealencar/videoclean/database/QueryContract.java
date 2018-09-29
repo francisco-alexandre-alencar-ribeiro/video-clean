@@ -3,7 +3,7 @@ package com.alexandrealencar.videoclean.database;
 import android.provider.BaseColumns;
 
 public final class QueryContract {
-    
+
     public static class QueryEntry implements BaseColumns {
         public static final String TABLE_NAME = "query_history";
         public static final String COLUMN_NAME_DESCRIPTION = "description";
