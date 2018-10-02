@@ -95,7 +95,7 @@ public class MainActivity extends VideoCleanActivity
         } else if (id == R.id.nav_query_history) {
             startActivity(new Intent(this, HistoryActivity.class));
         } else if (id == R.id.nav_downloads) {
-
+            startActivity(new Intent(this, DownloadActivity.class));
         } else if (id == R.id.nav_favorites) {
             startActivity(new Intent(this, FavoriteLinkActivity.class));
         }
@@ -141,19 +141,19 @@ public class MainActivity extends VideoCleanActivity
         final String absolute = getAbsoluteUrl(url);
         RequestQueue queue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @SuppressLint("SetTextI18n")
-                    @Override
-                    public void onResponse(String response) {
-                        getListOfLinksHtml((MainActivity) context, absolute, response );
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        message("Nenhum site encontrado!").show();
-                    }
-                });
+            new Response.Listener<String>() {
+                @SuppressLint("SetTextI18n")
+                @Override
+                public void onResponse(String response) {
+                    getListOfLinksHtml((MainActivity) context, absolute, response );
+                }
+            },
+            new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    message("Nenhum site encontrado!").show();
+                }
+            });
         queue.add(stringRequest);
     }
 }

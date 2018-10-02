@@ -13,5 +13,7 @@ public final class QueryContract {
         public static final String COLUMN_NAME_VISUALIZED = "visualized";
         public static final String COLUMN_NAME_IS_FAVORITE = "is_favorite";
         public static final String COLUMN_NAME_CURRENT_POSITION = "current_position";
+        public static final String COLUMN_NAME_PATH = "path";
+        public static final String COLUMN_NAME_IS_DOWNLOAD = "is_download";
     }
 }

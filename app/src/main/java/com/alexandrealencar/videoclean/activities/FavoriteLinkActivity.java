@@ -21,4 +21,10 @@ public class FavoriteLinkActivity extends VideoCleanActivity {
         linkAdapter.setmDataset(videoCleanController.selectFavorite());
         recyclerView.setAdapter(linkAdapter);
     }
+
+    @Override
+    public void afterDownload(){
+        linkAdapter.setmDataset(videoCleanController.selectFavorite());
+        recyclerView.setAdapter(linkAdapter);
+    }
 }

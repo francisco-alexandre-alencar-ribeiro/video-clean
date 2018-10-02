@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.HistoryActivity">
+    tools:context=".activities.DownloadActivity">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerViewLinkPage"
+        android:id="@+id/recyclerViewLinkVideo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -17,6 +17,5 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         tools:listitem="@layout/item_link_video" />
-
 
 </android.support.constraint.ConstraintLayout>

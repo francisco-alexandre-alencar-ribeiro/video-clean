@@ -11,6 +11,8 @@ public final class QueryHistory {
     private int visualized = 0;
     private int isFavorite = 0;
     private int currentPosition = 0;
+    private String path = "";
+    private int isDownload = 0;
 
     public int getCurrentPosition() {
         return currentPosition;
@@ -86,5 +88,18 @@ public final class QueryHistory {
 
     public void setIsFavorite(int isFavorite) {
         this.isFavorite = isFavorite;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+    public void setIsDownload(int isDownload) {
+        this.isDownload = isDownload;
+    }
+    public String getPath(){
+        return path;
+    }
+    public int getIsDownload(){
+        return isDownload;
     }
 }

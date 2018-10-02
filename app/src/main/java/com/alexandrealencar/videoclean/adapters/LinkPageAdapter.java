@@ -3,6 +3,7 @@ package com.alexandrealencar.videoclean.adapters;
 import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,8 +54,16 @@ public class LinkPageAdapter extends RecyclerView.Adapter<LinkPageAdapter.ViewHo
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View view) {
-                onListInteraction.onClickIem(p);
-                holder.mTextView1.setText(holder.mTextView1.getText() + " * ");
+            onListInteraction.onClickIem(p);
+            holder.mTextView1.setText(holder.mTextView1.getText() + " * ");
+            }
+        });
+
+        holder.mTextView1.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+            onListInteraction.onClickLongIem(p);
+            return true;
             }
         });
     }
@@ -66,5 +75,6 @@ public class LinkPageAdapter extends RecyclerView.Adapter<LinkPageAdapter.ViewHo
 
     public interface OnListInteraction {
         public void onClickIem(String[] s);
+        public void onClickLongIem(String[] s);
     }
 }

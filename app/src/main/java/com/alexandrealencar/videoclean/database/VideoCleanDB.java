@@ -12,12 +12,14 @@ public class VideoCleanDB extends SQLiteOpenHelper {
     private static final String SQL_CREATE_ENTRIES = "CREATE TABLE " + QueryEntry.TABLE_NAME + " (" +
             QueryEntry._ID + " INTEGER PRIMARY KEY," +
             QueryEntry.COLUMN_NAME_DESCRIPTION + " TEXT," +
+            QueryEntry.COLUMN_NAME_PATH + " TEXT," +
             QueryEntry.COLUMN_NAME_LINK + " TEXT," +
             QueryEntry.COLUMN_NAME_DATE_UPDATE + " REAL," +
             QueryEntry.COLUMN_NAME_DATE_CREATE + " REAL," +
             QueryEntry.COLUMN_NAME_VISUALIZED + " INTEGER," +
             QueryEntry.COLUMN_NAME_IS_FAVORITE + " INTEGER," +
-            QueryEntry.COLUMN_NAME_CURRENT_POSITION + " INTEGER) ";
+            QueryEntry.COLUMN_NAME_CURRENT_POSITION + " INTEGER, " +
+            QueryEntry.COLUMN_NAME_IS_DOWNLOAD + " INTEGER) ";
 
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + QueryEntry.TABLE_NAME;
 

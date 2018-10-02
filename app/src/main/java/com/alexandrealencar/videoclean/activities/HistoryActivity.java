@@ -28,4 +28,10 @@ public class HistoryActivity extends VideoCleanActivity {
         linkAdapter.setmDataset(videoCleanController.selectHistory());
         recyclerView.setAdapter(linkAdapter);
     }
+
+    @Override
+    public void afterDownload(){
+        linkAdapter.setmDataset(videoCleanController.selectHistory());
+        recyclerView.setAdapter(linkAdapter);
+    }
 }

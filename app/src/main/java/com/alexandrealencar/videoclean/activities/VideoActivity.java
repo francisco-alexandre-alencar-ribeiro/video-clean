@@ -15,6 +15,7 @@ import com.alexandrealencar.videoclean.database.VideoCleanController;
 import com.alexandrealencar.videoclean.entities.QueryHistory;
 import com.alexandrealencar.videoclean.database.QueryContract.QueryEntry;
 
+import java.io.IOException;
 import java.util.Date;
 
 public class VideoActivity extends AppCompatActivity implements MediaPlayer.OnInfoListener {
@@ -29,14 +30,14 @@ public class VideoActivity extends AppCompatActivity implements MediaPlayer.OnIn
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
         videoView = findViewById(R.id.videoView);
+
         String url = getIntent().getStringArrayExtra(QueryEntry.COLUMN_NAME_LINK)[0];
         videoView.setVideoURI(Uri.parse(url));
         mediaController = new MediaController(this);
         videoView.setMediaController(mediaController);
         mediaController.setAnchorView(videoView);
         videoCleanController = new VideoCleanController(this);
-        Cursor cursor = videoCleanController.select(QueryEntry.COLUMN_NAME_LINK + " = ? ", new String[]{url});
-
+        Cursor cursor = videoCleanController.select( QueryEntry.COLUMN_NAME_LINK + " = ? OR " + QueryEntry.COLUMN_NAME_PATH + " = ? ", new String[]{ url , url });
         queryHistory = new QueryHistory();
         queryHistory.setVisualized(1);
         queryHistory.setLink(url);
@@ -47,6 +48,9 @@ public class VideoActivity extends AppCompatActivity implements MediaPlayer.OnIn
             queryHistory.setId(videoCleanController.insert(queryHistory));
         } else {
             queryHistory.setDescription(cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_DESCRIPTION)));
+            queryHistory.setIsDownload(cursor.getInt(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_IS_DOWNLOAD)));
+            queryHistory.setPath(cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_PATH)));
+            queryHistory.setLink(cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_LINK)));
             queryHistory.setId(cursor.getLong(cursor.getColumnIndex(QueryEntry._ID)));
             queryHistory.setIsFavorite(cursor.getInt(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_IS_FAVORITE)));
             queryHistory.setCurrentPosition(cursor.getInt(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_CURRENT_POSITION)));

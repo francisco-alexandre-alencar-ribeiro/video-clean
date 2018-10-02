@@ -13,6 +13,8 @@ import java.util.List;
 public final class VideoCleanController {
     private SQLiteDatabase db;
     private Context context;
+    private String[] columns = {QueryEntry._ID, QueryEntry.COLUMN_NAME_LINK, QueryEntry.COLUMN_NAME_DESCRIPTION , QueryEntry.COLUMN_NAME_IS_FAVORITE , QueryEntry.COLUMN_NAME_CURRENT_POSITION, QueryEntry.COLUMN_NAME_IS_DOWNLOAD , QueryEntry.COLUMN_NAME_PATH, QueryEntry.COLUMN_NAME_VISUALIZED};
+
 
     public VideoCleanController(Context context) {
         this.context = context;
@@ -24,35 +26,31 @@ public final class VideoCleanController {
 
     public Cursor select( String selection , String[] selectionArqs ) {
         getConnection();
-        String[] columns = {QueryEntry._ID, QueryEntry.COLUMN_NAME_LINK, QueryEntry.COLUMN_NAME_DESCRIPTION , QueryEntry.COLUMN_NAME_IS_FAVORITE , QueryEntry.COLUMN_NAME_CURRENT_POSITION};
         return db.query(QueryEntry.TABLE_NAME, columns, selection, selectionArqs, null, null, QueryEntry._ID );
     }
 
     public List<String[]> selectFavorite() {
         getConnection();
-        String[] columns = {QueryEntry._ID, QueryEntry.COLUMN_NAME_LINK, QueryEntry.COLUMN_NAME_DESCRIPTION};
         Cursor cursor = db.query(QueryEntry.TABLE_NAME, columns, QueryEntry.COLUMN_NAME_IS_FAVORITE + " = ? ", new String[]{ "1" } , null, null, QueryEntry._ID );
         return cursorToList(cursor);
     }
 
     public List<String[]> selectHistory() {
         getConnection();
-        String[] columns = {QueryEntry._ID, QueryEntry.COLUMN_NAME_LINK, QueryEntry.COLUMN_NAME_DESCRIPTION};
         Cursor cursor = db.query(QueryEntry.TABLE_NAME, columns, QueryEntry.COLUMN_NAME_VISUALIZED + " = ? ", new String[]{ "1" } , null, null, QueryEntry.COLUMN_NAME_DATE_UPDATE + " DESC" );
+        return cursorToList(cursor);
+    }
+
+
+    public List<String[]> selectDownloads() {
+        getConnection();
+        Cursor cursor = db.query(QueryEntry.TABLE_NAME, columns, QueryEntry.COLUMN_NAME_IS_DOWNLOAD + " = ? ", new String[]{ "1" } , null, null, QueryEntry.COLUMN_NAME_DATE_UPDATE + " DESC" );
         return cursorToList(cursor);
     }
 
     public long insert(QueryHistory queryHistory) {
         getConnection();
-        ContentValues values = new ContentValues();
-        values.put(QueryEntry.COLUMN_NAME_DESCRIPTION, queryHistory.getDescription());
-        values.put(QueryEntry.COLUMN_NAME_LINK, queryHistory.getLink());
-        values.put(QueryEntry.COLUMN_NAME_DATE_UPDATE, queryHistory.getDateUpdate());
-        values.put(QueryEntry.COLUMN_NAME_DATE_CREATE, queryHistory.getDateCreate());
-        values.put(QueryEntry.COLUMN_NAME_VISUALIZED, queryHistory.getVisualized());
-        values.put(QueryEntry.COLUMN_NAME_IS_FAVORITE, queryHistory.getIsFavorite());
-        values.put(QueryEntry.COLUMN_NAME_CURRENT_POSITION, queryHistory.getCurrentPosition());
-        long id = db.insert(QueryEntry.TABLE_NAME, null, values);
+        long id = db.insert(QueryEntry.TABLE_NAME, null, getValues(queryHistory) );
         db.close();
         return id;
     }
@@ -67,14 +65,7 @@ public final class VideoCleanController {
 
     public long update(QueryHistory queryHistory){
         getConnection();
-        ContentValues values = new ContentValues();
-        values.put(QueryEntry.COLUMN_NAME_DESCRIPTION, queryHistory.getDescription());
-        values.put(QueryEntry.COLUMN_NAME_LINK, queryHistory.getLink());
-        values.put(QueryEntry.COLUMN_NAME_DATE_UPDATE, queryHistory.getDateUpdate());
-        values.put(QueryEntry.COLUMN_NAME_VISUALIZED, queryHistory.getVisualized());
-        values.put(QueryEntry.COLUMN_NAME_IS_FAVORITE, queryHistory.getIsFavorite());
-        values.put(QueryEntry.COLUMN_NAME_CURRENT_POSITION, queryHistory.getCurrentPosition());
-        long id = db.update(QueryEntry.TABLE_NAME, values, QueryEntry._ID + " = " + queryHistory.getId().toString(), null);
+        long id = db.update(QueryEntry.TABLE_NAME, getValues(queryHistory), QueryEntry._ID + " = " + queryHistory.getId().toString(), null);
         db.close();
         return id;
     }
@@ -82,11 +73,31 @@ public final class VideoCleanController {
     private List<String[]> cursorToList(Cursor cursor){
         List<String[]> links = new ArrayList<>();
         while(cursor.moveToNext()){
+            String link = "";
             String description = cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_DESCRIPTION));
-            String link = cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_LINK));
+            if ( cursor.getInt(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_IS_DOWNLOAD)) == 1 ){
+                link = cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_PATH));
+            } else {
+                link = cursor.getString(cursor.getColumnIndex(QueryEntry.COLUMN_NAME_LINK));
+            }
             links.add(new String[]{link,description});
         }
         cursor.close();
+        db.close();
         return links;
+    }
+
+
+    private ContentValues getValues( QueryHistory queryHistory ){
+        ContentValues values = new ContentValues();
+        values.put(QueryEntry.COLUMN_NAME_DESCRIPTION, queryHistory.getDescription());
+        values.put(QueryEntry.COLUMN_NAME_LINK, queryHistory.getLink());
+        values.put(QueryEntry.COLUMN_NAME_DATE_UPDATE, queryHistory.getDateUpdate());
+        values.put(QueryEntry.COLUMN_NAME_VISUALIZED, queryHistory.getVisualized());
+        values.put(QueryEntry.COLUMN_NAME_IS_FAVORITE, queryHistory.getIsFavorite());
+        values.put(QueryEntry.COLUMN_NAME_CURRENT_POSITION, queryHistory.getCurrentPosition());
+        values.put(QueryEntry.COLUMN_NAME_PATH, queryHistory.getPath());
+        values.put(QueryEntry.COLUMN_NAME_IS_DOWNLOAD, queryHistory.getIsDownload());
+        return values;
     }
 }
