@@ -1,6 +1,7 @@
 package com.alexandrealencar.videoclean.activities;
 
 import android.annotation.SuppressLint;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -21,6 +22,7 @@ import com.alexandrealencar.videoclean.entities.QueryHistory;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
@@ -110,7 +112,7 @@ public class VideoCleanActivity extends AppCompatActivity implements LinkPageAda
         }
         for (int i = 0; i < links.size(); i++) {
             String link = (links.get(i)[0].contains("://")) ? links.get(i)[0] : links.get(i)[0].replaceAll("\\/", "");
-            link = link.replaceAll("\\\\", "/");
+            link = link.replaceAll("\\\\", "/").replace("&amp;" , "&");
             links.set(i, new String[]{link, link});
         }
         return links;
@@ -185,8 +187,17 @@ public class VideoCleanActivity extends AppCompatActivity implements LinkPageAda
         return (url.length() >= 7 && url.length() <= 8) ? urlClone + "/" : url;
     }
 
+    @SuppressWarnings("deprecation")
+    private void copiarParaAreaDeTransferencia(String text) {
+        ClipboardManager Copiar = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        assert Copiar != null;
+        Copiar.setText(text);
+        Toast.makeText(this, "Texto copiado com sucesso", Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     public void onClickIem(String[] url) {
+        copiarParaAreaDeTransferencia(url[0]);
         Intent intent = new Intent(this, VideoActivity.class);
         intent.putExtra(QueryContract.QueryEntry.COLUMN_NAME_LINK, url);
         startActivity(intent);
@@ -253,7 +264,5 @@ public class VideoCleanActivity extends AppCompatActivity implements LinkPageAda
         }
     }
 
-    public void afterDownload(){
-
-    }
+    public void afterDownload(){}
 }
