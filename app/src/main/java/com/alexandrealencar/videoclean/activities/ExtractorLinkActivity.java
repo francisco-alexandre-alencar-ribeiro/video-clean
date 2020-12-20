@@ -129,7 +129,7 @@ public class ExtractorLinkActivity extends VideoCleanActivity implements SearchV
                     @Override
                     public void onResponse(String response) {
                         try {
-                            String link = getListOfLinksHtml(s[0], response).get(0)[0];
+                            String link = getListOfLinksHtml(response).get(0)[0];
                             @SuppressLint("SimpleDateFormat")
                             Cursor cursor = videoCleanController.select(QueryContract.QueryEntry.COLUMN_NAME_LINK + " = ? ", new String[]{link});
                             if (!cursor.moveToNext()) {

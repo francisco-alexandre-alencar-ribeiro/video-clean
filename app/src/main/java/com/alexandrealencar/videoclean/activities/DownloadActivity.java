@@ -1,8 +1,6 @@
 package com.alexandrealencar.videoclean.activities;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
 import com.alexandrealencar.videoclean.R;
 import com.alexandrealencar.videoclean.adapters.LinkPageAdapter;
 

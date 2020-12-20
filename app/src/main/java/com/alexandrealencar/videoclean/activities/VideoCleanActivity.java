@@ -5,13 +5,9 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.media.MediaRecorder;
-import android.net.Uri;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.Patterns;
 import android.widget.Toast;
 import com.alexandrealencar.videoclean.entities.InputStreamVolleyRequest;
@@ -22,28 +18,16 @@ import com.alexandrealencar.videoclean.entities.QueryHistory;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static android.media.MediaRecorder.*;
 
 public class VideoCleanActivity extends AppCompatActivity implements LinkPageAdapter.OnListInteraction {
     protected RecyclerView recyclerView;
@@ -69,51 +53,17 @@ public class VideoCleanActivity extends AppCompatActivity implements LinkPageAda
     }
 
     protected Matcher matcher(String regex, String response) {
-        response = response.replace("\n", "").replace("\r", "");
         Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         return pattern.matcher(response);
     }
 
-    protected List<String[]> getListOfLinksHtml(String url, String response) {
+    protected List<String[]> getListOfLinksHtml(String response) {
         List<String[]> links = new ArrayList<>();
-        Matcher comparator = matcher("<video.*?</video>", response);
+        Matcher comparator = matcher("\"http.*(\\.mp4|\\.m3u8|\\.avi|\\.flv|\\.mov|\\.mpeg|\\.mkv|\\.wmv).*?\"", response);
+
         while (comparator.find()) {
-            String value = comparator.group(0);
-            if (value.contains("source")) {
-                Matcher secondary = matcher("\\<source(.*?)\\>", value);
-                while (secondary.find() && secondary.group(0).contains(".mp4")) {
-                    links.add(new String[]{secondary.group(0), secondary.group(0)});
-                }
-            } else if (value.contains(".mp4")) {
-                links.add(new String[]{value, value});
-            }
-        }
-        String listLinks = "";
-        for (String[] link : links) {
-            listLinks += link[0];
-        }
-        comparator = matcher("src='.*?'", listLinks.replaceAll("\"", "\'"));
-        links.clear();
-        while (comparator.find()) {
-            String link = makeUrl( url , comparator );
-            if (!links.contains(new String[]{link, link})) {
-                links.add(new String[]{link, link});
-            }
-        }
-        if (links.isEmpty()) {
-            comparator = matcher("http.*?\"", response.replaceAll("\'", "\""));
-            while (comparator.find()) {
-                String value = comparator.group(0).replaceAll("\"", "");
-                String link = value;
-                if (value.contains(".mp4") && !links.contains(new String[]{link, link})) {
-                    links.add(new String[]{link, link});
-                }
-            }
-        }
-        for (int i = 0; i < links.size(); i++) {
-            String link = (links.get(i)[0].contains("://")) ? links.get(i)[0] : links.get(i)[0].replaceAll("\\/", "");
-            link = link.replaceAll("\\\\", "/").replace("&amp;" , "&");
-            links.set(i, new String[]{link, link});
+            String value = comparator.group(0).replaceAll("\"", "");
+            links.add(new String[]{value, value});
         }
         return links;
     }
@@ -145,7 +95,7 @@ public class VideoCleanActivity extends AppCompatActivity implements LinkPageAda
     }
 
     protected void getListOfLinksHtml(final MainActivity mainActivity , final String url, String response) {
-        final List<String[]> links = this.getListOfLinksHtml(url,response);
+        final List<String[]> links = this.getListOfLinksHtml(response);
         List<String> linksIframe = new ArrayList<>();
         Matcher comparator = matcher("<iframe.*?>", response);
         while (comparator.find()){
@@ -162,7 +112,7 @@ public class VideoCleanActivity extends AppCompatActivity implements LinkPageAda
                         @SuppressLint("SetTextI18n")
                         @Override
                         public void onResponse(String response) {
-                            links.addAll(getListOfLinksHtml(link,response));
+                            links.addAll(getListOfLinksHtml(response));
                             mainActivity.refreshRecyclerView(links);
                         }
                     },
